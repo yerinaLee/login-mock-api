@@ -16,29 +16,38 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public class AuthTokenFilter extends OncePerRequestFilter { // 모든 요청마다 토큰 검사
+public class AuthTokenFilter extends OncePerRequestFilter { // 요청 1번에 필터 1번 실행
 
-    @Autowired private JwtUtils jwtUtils;
-    @Autowired private UserDetailsServiceImpl userDetailsService;
+    @Autowired
+    private JwtUtils jwtUtils;
 
+    @Autowired
+    private UserDetailsServiceImpl userDetailsService;
+
+    @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws IOException, ServletException {
 
         try{
-            //1. 헤더에서 "Bearer <token>" 추출
+            //1. 헤더에서 "Authorization: Bearer <token>" 추출
             String jwt = parseJwt(request);
 
             // 2. 토큰이 있고 유효하면 SecurityContext에 인증 정보 등록
             if (jwt != null && jwtUtils.validateToken(jwt)) {
                 String username = jwtUtils.getUsernameFromToken(jwt);
+
+                // DB에서 유저 로드
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-                UsernamePasswordAuthenticationToken auth =
+                // Spring Security 인증 객체 생성
+                UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
                                 userDetails, null, userDetails.getAuthorities());
-                auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(auth);
+
+                // SecurityContext에 저장 → 이후 @AuthenticationPrincipal로 꺼낼 수 있음
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (Exception e){
             logger.error("인증 처리 실패: {}", e);
@@ -49,6 +58,8 @@ public class AuthTokenFilter extends OncePerRequestFilter { // 모든 요청마�
 
     private String parseJwt(HttpServletRequest request){
         String header = request.getHeader("Authorization");
+
+        // "Bearer " 7글자 이후가 실제 토큰
         if(StringUtils.hasText(header) && header.startsWith("Bearer ")){
             return header.substring(7);
         }

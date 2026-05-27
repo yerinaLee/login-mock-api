@@ -1,6 +1,8 @@
 package com.study.auth.security.service;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.study.auth.model.MockUser;
+import com.study.auth.model.User;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -15,23 +17,32 @@ public class UserDetailsImpl implements UserDetails { // Spring Security가 인�
 
     private Long id;
     private String username;
+
+    @JsonIgnore
     private String password;
+
     private String profileName;
+    private String email;
     private Collection<? extends GrantedAuthority> authorities;
 
     // MockUser -> UserDetailsImpl 변환
-    public static UserDetailsImpl build(MockUser user){
+    public static UserDetailsImpl build(User user){
         List<GrantedAuthority> authorities = user.getRoles().stream()
-                .map(SimpleGrantedAuthority::new)
+                .map(role -> new SimpleGrantedAuthority(role.getName().name()))
                 .collect(Collectors.toList());
+
         return new UserDetailsImpl(
-                user.getId(), user.getUsername(), user.getPassword(),
-                user.getProfileName(), authorities);
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getProfileName(),
+                user.getPassword(),
+                authorities);
     }
 
     public Long getId() {return id ;}
     public String getProfileName() {return profileName;}
-
+    public String getEmail() { return email; }
     @Override public String getUsername() { return username; }
     @Override public String getPassword() { return password; }
     @Override public Collection<? extends GrantedAuthority> getAuthorities() { return authorities; }

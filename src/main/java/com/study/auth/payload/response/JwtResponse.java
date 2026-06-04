@@ -24,4 +24,15 @@ public class JwtResponse {
         this.roles = roles;
     }
 
+    // 프론트가 받는 JSON:
+    // {
+    //   "token": "eyJhbGci...",
+    //   "type": "Bearer",
+    //   "id": 1,
+    //   "username": "user123",
+    //   "profileName": "홍길동",
+    //   "email": "user@test.com",
+    //   "roles": ["ROLE_USER"]
+    // }
+
 }

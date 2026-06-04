@@ -56,5 +56,15 @@ public class JwtUtils { // 토큰 발급 / 검증
         return false;
     }
 
+    // 소셜 로그인용 jwt 토큰 발행
+    public String generateJwtTokenFromUsername(String username){
+        return Jwts.builder()
+                .setSubject(username) // 페이로드 : username
+                .setIssuedAt(new Date()) // 발급시각
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs)) // 만료시각
+                .signWith(SignatureAlgorithm.HS512, jwtSecret) // HS512로 서명
+                .compact();
+    }
+
 
 }

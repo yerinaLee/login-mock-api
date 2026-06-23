@@ -1,6 +1,7 @@
 package com.study.auth.security.service;
 
 import com.study.auth.model.MockUser;
+import com.study.auth.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -30,10 +31,18 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        MockUser user = users.stream()
+        MockUser mockUser = users.stream()
                 .filter(u -> u.getUsername().equals(username))
                 .findFirst()
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+
+        User user = new User(
+                mockUser.getUsername(),
+                mockUser.getEmail(),
+                mockUser.getProfileName(),
+                mockUser.getPassword()
+        );
+
         return UserDetailsImpl.build(user);
     }
 }

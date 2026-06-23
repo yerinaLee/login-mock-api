@@ -34,9 +34,9 @@ public class UserDetailsImpl implements UserDetails { // Spring Security가 인�
         return new UserDetailsImpl(
                 user.getId(),
                 user.getUsername(),
-                user.getEmail(),
-                user.getProfileName(),
                 user.getPassword(),
+                user.getProfileName(),
+                user.getEmail(),
                 authorities);
     }
 

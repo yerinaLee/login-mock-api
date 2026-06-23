@@ -2,15 +2,18 @@ package com.study.auth.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name="users")
 @Data
-public class User {
+@NoArgsConstructor
+public class User implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,6 +34,9 @@ public class User {
     private String provider;   // "google", "kakao", "naver", null
     private String providerId;
 
+    private String authKey;
+    private String tokkenkey;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_roles",
     joinColumns = @JoinColumn(name = "user_id"),
@@ -44,4 +50,13 @@ public class User {
         this.password = password;
         this.provider = provider;
     }
+
+
+    public User(String username, String email, String profileName, String password) {
+        this.username = username;
+        this.email = email;
+        this.profileName = profileName;
+        this.password = password;
+    }
+
 }

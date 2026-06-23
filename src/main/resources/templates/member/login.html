@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>로그인</title>
+</head>
+<body>
+
+<h3>로그인 정보를 입력하세용</h3>
+<form id="loginForm">
+  <input type="text" name="username">
+  <input type="password" name="password">
+    <input type="hidden" name="r" th:value="${r}">
+  <button type="submit">로그인</button>
+</form>
+</body>
+
+<script>
+    document.getElementById("loginForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+
+        fetch("/index/member/api/LoginJSON",{
+            method : "POST",
+            body : new URLSearchParams(formData)
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.msg === 'success'){
+                window.location.href = data.url;
+            } else {
+                alert(data.msg);
+            }
+        });
+    });
+</script>
+
+</html>
